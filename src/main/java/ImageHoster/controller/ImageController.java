@@ -4,6 +4,7 @@ import ImageHoster.model.Comment;
 import ImageHoster.model.Image;
 import ImageHoster.model.Tag;
 import ImageHoster.model.User;
+import ImageHoster.service.CommentService;
 import ImageHoster.service.ImageService;
 import ImageHoster.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public class ImageController {
 
     @Autowired
     private TagService tagService;
+
+    @Autowired
+    private CommentService commentService;
 
     //This method displays all the images in the user home page after successful login
     @RequestMapping("images")
@@ -107,8 +111,7 @@ public class ImageController {
             model.addAttribute("image", image);
             model.addAttribute("tags", tags);
             return "images/edit";
-        }
-        else {
+        } else {
             String tags = convertTagsToString(image.getTags());
             model.addAttribute("tags", tags);
 
@@ -170,8 +173,7 @@ public class ImageController {
         if (currentUser.getId() == imageOwner.getId()) {
             imageService.deleteImage(imageId);
             return "redirect:/images";
-        }
-        else {
+        } else {
             String tags = convertTagsToString(image.getTags());
             model.addAttribute("tags", tags);
 
@@ -182,6 +184,24 @@ public class ImageController {
 
             return "images/image";
         }
+    }
+
+    //This method is called when a comment is to be added to a particular image. It calls the business logic
+    //to create the comment and also adds the comment to the list of comments attribute of an image.
+    //It then redirects to the showImage method in the image controller.
+    @RequestMapping(value = "/image/{imageId}/{imageTitle}/comments", method = RequestMethod.POST)
+    private String createComment(@PathVariable("imageId") Integer id, @PathVariable("imageTitle") String imageTitle, @RequestParam("comment") String commentText, HttpSession session) {
+
+        User user = (User) session.getAttribute("loggeduser");
+        Image image = imageService.getImage(id);
+
+        Comment newComment = commentService.createComment(commentText, image, user);
+
+        List<Comment> imageComments = image.getComments();
+        imageComments.add(newComment);
+        image.setComments(imageComments);
+
+        return "redirect:/images/" + id + "/" + imageTitle;
     }
 
 

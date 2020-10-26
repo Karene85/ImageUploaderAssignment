@@ -17,7 +17,7 @@ public class Comment {
     private String text;
 
     @Column(name = "created_date")
-    private LocalDate createdDate;
+    private Date createdDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
@@ -43,11 +43,11 @@ public class Comment {
         this.text = text;
     }
 
-    public LocalDate getCreatedDate() {
+    public Date getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(LocalDate createdDate) {
+    public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }
 
